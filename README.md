@@ -19,39 +19,80 @@ python3 -m pip install --upgrade git+https://github.com/matiscke/scan_astro-ph.g
 ```
 
 # Usage
-
-## Set up keywords and relevant authors
-### either manually:
-- In your current working directory, create the files `authors.txt` and `keywords.txt`.
-- write down your favorite authors and keywords, plus a ranking for each. I suggest integers ranging from 1 to 5, where 5 is most relevant. The *syntax* is just like for a *python dictionary*.
-
-Example `authors.txt`:
-```
-{"Alpher" : 1, "Bethe" : 2, "Gamov" : 3}
-```
-Example `keywords.txt`:
-```
-{"star": 1, "planet": 2, "habitable": 3}
-```
-
-### or let `scan_astro-ph` do it for you:
-- Run `scan_astro-ph.wordcounter` (or `python -m scan_astroph.wordcounter`).
-It will ask for an ASCII file and extract words with 4-12 characters from it, sorted by occurrence in the file.
-- You will be asked to rank these suggested keywords. For each word shown, press 'Enter' to reject it or provide an integer rating, e.g., from 1 to 5 (higher=more relevant). Conclude by pressing `C`.
-- Manually insert particularly important authors and their ratings in `authors.txt` (currently, the automated search works only for keywords).
-
-
 ## Query today's astro-ph listing for relevant papers
-Just run `scan_astro-ph` (or `python -m scan_astroph`).
+First setup your keywords and authors (see configuration section),
+then just run `scan_astro-ph` (or `python -m scan_astroph`) to get the relevant listings.
 
-## Options
+## Command line reference
 ```
-'-d', '--date': date in format yyyy-mm, or "new", or "recent"', default=None
-'-l', '--len': length of result list, all is -1, default=-1
-'-v', '--rating': minimum rating for result list, default=6
-'--reverse': reverse list (lowest ranked paper on top)
-'--debug': debug mode, default=False
+usage: scan_astro-ph [-h] [--config /path/to/config] [--default-config [/path/to/config]] [--config-convert [/path/to/config]] [--edit] [-d DATE] [-l LENGTH] [-v RATING] [--reverse] [--show-resubmissions] [--ignore-cross-lists] [--log {info,debug}] [--version]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config /path/to/config
+                        Path to configuration file (check README for defaults)
+  --default-config [/path/to/config]
+                        Write default config to default location (or specified path)
+  --config-convert [/path/to/config]
+                        Convert authors and keywords config from legacy format
+  --edit                Edit config in default text editor
+  -d DATE, --date DATE  date in format yyyy-mm, or "new", or "recent"
+  -l LENGTH, --len LENGTH
+                        length of result list, all is -1
+  -v RATING, --rating RATING
+                        minimum rating for result list
+  --reverse             reverse list (lowest ranked paper on top)
+  --show-resubmissions  Include resubmissions
+  --ignore-cross-lists  Include cross-lists
+  --log {info,debug}    Set loglevel
+  --version             show program's version number and exit
 ```
+# Configuration
+In the configuration file all the keywords and authors have to be set, as well as other optional configuration.
+
+The easiest way to get started is to run `scan_astro-ph --edit`, this will open the configuration file in the
+default text editor.
+
+Alternatively create a default configfile with `scan_astro-ph --default-config`, and edit it manually.
+
+## Configuration format:
+```ini
+[authors]
+# author = rating
+Alpher = 1
+Bethe = 2
+Gamov = 3
+
+[keywords]
+# keyword = rating
+star = 1
+planet = 2
+habitable = 3
+
+[options]
+# other optional options (can also be set on CLI)
+date = new
+length = -1
+minimum_rating = 6
+reverse_list = False
+show_resubmissions = False
+show_cross_lists = True
+```
+
+## Automatically find keywords with `scan_astro-ph.wordcounter`:
+- Run `scan_astro-ph.wordcounter file_to_scan` (or `python -m scan_astroph.wordcounter file_to_scan`).
+It scan the text file and extract words with 4-12 characters from it, sorted by occurrence in the file.
+- You will be asked to rank these suggested keywords. For each word shown, press 'Enter' to reject it or provide an integer rating, e.g., from 1 to 5 (higher=more relevant). Conclude by pressing `C`.
+- Manually insert particularly important authors into the config file (e.g. with `scan_astro-ph --edit`)
+
+## Configuration locations:
+`scan_astro-ph` searches the these paths for the config file, and loads the first found:
+- from environment variable: `$SCAN_ASTRO_PH_CONF`
+- from home directory: `~/.scan_astroph.conf`
+- default path (platform dependent):
+  - on Linux / Unix (except MacOS): `$XDG_CONFIG_HOME/scan_astroph/scan_astroph.conf` (`XDG_CONFIG_HOME` defaults to `~/.config`)
+  - on MacOS: `~/Library/Application Support/scan_astroph/scan_astroph.conf`
+  - on Windows: `$HOME/Documents/scan_astroph/scan_astroph.conf`
 
 # Feedback
 All feedback, including bug reports, feature requests, pull requests, etc., is welcome. `scan_astro-ph` is being actively developed in an open repository; if you have any trouble please raise an [issue](https://github.com/matiscke/scan_astro-ph/issues/new).
